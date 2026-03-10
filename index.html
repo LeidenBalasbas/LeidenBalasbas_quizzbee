@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Science Quiz</title>
+
+<style>
+
+body{
+font-family: Arial;
+background:#e9ede7;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+margin:0;
+}
+
+.container{
+background:white;
+padding:40px;
+width:420px;
+text-align:center;
+border-radius:12px;
+box-shadow:0 5px 20px rgba(0,0,0,0.1);
+}
+
+button{
+padding:10px 18px;
+border:none;
+border-radius:6px;
+background:#6c7a6b;
+color:white;
+cursor:pointer;
+margin-top:10px;
+}
+
+button:hover{
+background:#556154;
+}
+
+.choice{
+display:block;
+width:100%;
+padding:12px;
+margin:10px 0;
+border:2px solid #ddd;
+border-radius:8px;
+cursor:pointer;
+background:white;
+color:#222; /* FIX: text now visible */
+font-size:16px;
+transition:0.2s;
+}
+
+.choice:hover{
+background:#f3f3f3;
+border-color:#6c7a6b;
+}
+
+.correct{
+background:#b9e6c3;
+border:2px solid green;
+color:#000;
+}
+
+.wrong{
+background:#f7bcbc;
+border:2px solid red;
+color:#000;
+}
+
+.hidden{
+display:none;
+}
+
+.score{
+font-weight:bold;
+margin-bottom:10px;
+}
+
+.item{
+font-size:14px;
+margin-bottom:5px;
+color:#666;
+}
+
+input{
+padding:10px;
+width:80%;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container" id="startPage">
+
+<h1>Welcome</h1>
+<p>Test your basic science knowledge!</p>
+
+<input type="text" id="username" placeholder="Enter your name">
+
+<br><br>
+
+<button onclick="startQuiz()">Start Quiz</button>
+
+</div>
+
+
+<div class="container hidden" id="quizPage">
+
+<div class="item" id="itemNumber"></div>
+
+<div class="score" id="scoreDisplay">Score: 0</div>
+
+<h2 id="questionText"></h2>
+
+<div id="choices"></div>
+
+<button id="nextBtn" class="hidden" onclick="nextQuestion()">Next</button>
+
+</div>
+
+
+<div class="container hidden" id="resultPage">
+
+<h1 id="finalMessage"></h1>
+
+<p id="finalScore"></p>
+
+<button onclick="retryQuiz()">Retry Quiz</button>
+
+</div>
+
+
+<script>
+
+const questions=[
+
+{
+q:"What planet is known as the Red Planet?",
+choices:["Earth","Mars","Venus","Jupiter"],
+answer:"Mars"
+},
+
+{
+q:"What gas do plants use for photosynthesis?",
+choices:["Oxygen","Carbon Dioxide","Nitrogen","Hydrogen"],
+answer:"Carbon Dioxide"
+},
+
+{
+q:"What is the boiling point of water?",
+choices:["90°C","100°C","120°C","150°C"],
+answer:"100°C"
+},
+
+{
+q:"What force pulls objects toward Earth?",
+choices:["Magnetism","Electricity","Gravity","Pressure"],
+answer:"Gravity"
+},
+
+{
+q:"What part of the cell contains DNA?",
+choices:["Nucleus","Membrane","Cytoplasm","Ribosome"],
+answer:"Nucleus"
+},
+
+{
+q:"H2O is the chemical name for?",
+choices:["Salt","Oxygen","Water","Hydrogen"],
+answer:"Water"
+},
+
+{
+q:"What is the center of our solar system?",
+choices:["Earth","Moon","Sun","Mars"],
+answer:"Sun"
+},
+
+{
+q:"What organ pumps blood?",
+choices:["Lungs","Heart","Brain","Liver"],
+answer:"Heart"
+},
+
+{
+q:"Air is what state of matter?",
+choices:["Liquid","Solid","Gas","Plasma"],
+answer:"Gas"
+},
+
+{
+q:"Which vitamin do we get from sunlight?",
+choices:["Vitamin A","Vitamin B","Vitamin C","Vitamin D"],
+answer:"Vitamin D"
+}
+
+];
+
+let currentQuestion=0;
+let score=0;
+let userName="";
+let answered=false;
+
+function startQuiz(){
+
+userName=document.getElementById("username").value;
+
+if(userName===""){
+alert("Enter your name");
+return;
+}
+
+document.getElementById("startPage").classList.add("hidden");
+document.getElementById("quizPage").classList.remove("hidden");
+
+loadQuestion();
+
+}
+
+function loadQuestion(){
+
+answered=false;
+
+let q=questions[currentQuestion];
+
+document.getElementById("questionText").innerText=q.q;
+
+document.getElementById("itemNumber").innerText=
+"Item "+(currentQuestion+1)+" / "+questions.length;
+
+document.getElementById("scoreDisplay").innerText="Score: "+score;
+
+document.getElementById("nextBtn").classList.add("hidden");
+
+let choicesHTML="";
+
+q.choices.forEach(choice=>{
+
+choicesHTML+=`<button class="choice" onclick="selectAnswer(this,'${choice}')">${choice}</button>`;
+
+});
+
+document.getElementById("choices").innerHTML=choicesHTML;
+
+}
+
+function selectAnswer(button,choice){
+
+if(answered) return;
+
+answered=true;
+
+let correct=questions[currentQuestion].answer;
+
+let buttons=document.querySelectorAll(".choice");
+
+buttons.forEach(btn=>{
+
+if(btn.innerText===correct){
+btn.classList.add("correct");
+}
+
+if(btn.innerText===choice && choice!==correct){
+btn.classList.add("wrong");
+}
+
+});
+
+if(choice===correct){
+score++;
+}
+
+document.getElementById("scoreDisplay").innerText="Score: "+score;
+
+document.getElementById("nextBtn").classList.remove("hidden");
+
+}
+
+function nextQuestion(){
+
+currentQuestion++;
+
+if(currentQuestion<questions.length){
+loadQuestion();
+}
+else{
+showResults();
+}
+
+}
+
+function showResults(){
+
+document.getElementById("quizPage").classList.add("hidden");
+document.getElementById("resultPage").classList.remove("hidden");
+
+let message="";
+
+if(score>=8){
+message="Congratulations "+userName+"!";
+}
+else if(score>=6){
+message="Well Done "+userName+"!";
+}
+else if(score>=3){
+message="Not Bad "+userName+"!";
+}
+else{
+message="Try Harder Next Time "+userName+"!";
+}
+
+document.getElementById("finalMessage").innerText=message;
+document.getElementById("finalScore").innerText="Your Score: "+score+"/10";
+
+}
+
+function retryQuiz(){
+
+currentQuestion=0;
+score=0;
+
+document.getElementById("resultPage").classList.add("hidden");
+document.getElementById("startPage").classList.remove("hidden");
+
+}
+
+</script>
+
+</body>
+</html>
